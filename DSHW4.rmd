@@ -1,0 +1,69 @@
+---
+title: "JJiang_HW4"
+author: "Joe Jiang"
+date: "November 29, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(rvest)
+library(ggplot2)
+library(dplyr)
+```
+
+### Question 1, scape and reshape a table comprised of cast members of Harry Potter deathly Hallow 2
+
+```{r Scape a table from a website}
+url <- "https://www.imdb.com/title/tt1201607/fullcredits?ref_=tt_ql_1"
+cast <- url %>%
+	read_html() %>%
+  html_nodes(xpath='//*[@id="fullcredits_content"]/table[3]') %>%
+  html_table()
+cast <- cast[[1]]
+```
+```{r  Clean up the table}
+#delete the blank rows and columns
+cast <- cast[,c(2,4)]
+cast <- cast[2:157,]
+
+#column/row names 
+colnames(cast) <- c("actor", "Character")
+rownames(cast) <- c()
+
+#remove the row 'Rest of cast listed alphabetically:'
+cast <- cast[cast$actor != 'Rest of cast listed alphabetically:',]
+
+#split first and last names of actors 
+# cast$FirstName = '' 
+# cast$LastName = ''
+# for (i in 1:length(cast$actor)){
+#   if(cast$actor[i] == "Bob Yves Van Hellenberg Hubar"){
+#       cast$FirstName[i] <- 'Bob Yves'
+#       cast$LastName[i] <- 'Van Hellenberg Hubar'
+#   }
+#   else if(cast$actor[i] == 'Daphne de Beistegui'){
+#       cast$FirstName[i] <- 'Daphne'
+#       cast$LastName[i]<- 'de Beistegui'
+#   }
+#   else if(cast$actor[i] == 'Sarah-Jane De Crespigny'){
+#       cast$FirstName[i] <- 'Sarah-Jane'
+#       cast$LastName[i]<- 'De Crespigny'
+#   }
+#   else{
+#     name <- strsplit(cast$actor[i], ' ')[[1]]
+#     cast$LastName[i] <- tail(name, 1)
+#     cast$FirstName[i] <- paste(head(name, length(name)-1), collapse = ' ')
+#   }
+# }
+
+# simpler code if ignoring three actors with multiple-letter last names
+firstname = sapply(strsplit(cast$actor, ' '), function(x) paste(x[1:length(x)-1], collapse = " "))
+lastname = sapply(strsplit(cast$actor, ' '), function(x) x[length(x)])
+cast$FirstName <- firstname
+cast$LastName <- lastname
+head(cast, 10)
+```
+
+## 
+
