@@ -12,7 +12,7 @@ library(ggplot2)
 library(dplyr)
 ```
 
-### Question 1, scape and reshape a table comprised of cast members of Harry Potter deathly Hallow 2
+### Question 1, scape and reshape a table comprised of cast members of *Harry Potter Deathly Hallow 2*
 
 ```{r Scape a table from a website}
 #scape the web for a table using rvest
@@ -45,7 +45,7 @@ hpcast <- hpcast[, c(3,4,2)] #rearrange the columns
 knitr::kable(head(hpcast,10), format = "markdown")
 ```
 
-### Question 2
+### Question 2 scape and reshape a table from ESPN, then plot *FG%* of *San Antonio Spurs* players
 
 
 ```{r Scape the table containing the shooting stats of San Antonio Spurs from ESPN website}
@@ -79,11 +79,11 @@ spursShootingStats[, c(3:16 )] <- sapply(spursShootingStats[, c(3:16)], as.numer
 sapply(spursShootingStats, class) #after conversion
 ```
 
-```{r fig.cap = "Fig. 1 Field goals percentage per game (FG%) of San Antonio Spurs (data from http://www.espn.com/nba/team/stats/_/name/sa/san-antonio-spurs)", fig.align ="center", out.width = "75%"}
+```{r fig.cap = "Fig. 1 *Field goals percentage per game (FG%)* of San Antonio Spurs (data from http://www.espn.com/nba/team/stats/_/name/sa/san-antonio-spurs)", fig.align ="center", out.width = "75%"}
 spursShootingStats%>%ggplot(aes(x = `Name`, y = `FG%`)) +
   geom_bar(stat = 'identity', color = "black", fill ='red') +
   theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
-  xlab("Players") +
+  xlab("San Antonio Spurs Players") +
   ylab("FG%") +
   ggtitle("Field Goals Percentage Per Game Of San Antonio Spurs Players")+
   theme(plot.title = element_text(hjust = 0.5))
