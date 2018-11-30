@@ -15,55 +15,79 @@ library(dplyr)
 ### Question 1, scape and reshape a table comprised of cast members of Harry Potter deathly Hallow 2
 
 ```{r Scape a table from a website}
+#scape the web for a table using rvest
 url <- "https://www.imdb.com/title/tt1201607/fullcredits?ref_=tt_ql_1"
-cast <- url %>%
+hpcast <- url %>%
 	read_html() %>%
   html_nodes(xpath='//*[@id="fullcredits_content"]/table[3]') %>%
   html_table()
-cast <- cast[[1]]
+hpcast <- hpcast[[1]]
 ```
 ```{r  Clean up the table}
 #delete the blank rows and columns
-cast <- cast[,c(2,4)]
-cast <- cast[2:157,]
+hpcast <- hpcast[2:157,c(2,4)]
 
 #column/row names 
-colnames(cast) <- c("actor", "Character")
-rownames(cast) <- c()
+colnames(hpcast) <- c("actor", "Character")
+rownames(hpcast) <- NULL
 
-#remove the row 'Rest of cast listed alphabetically:'
-cast <- cast[cast$actor != 'Rest of cast listed alphabetically:',]
-
-#split first and last names of actors 
-# cast$FirstName = '' 
-# cast$LastName = ''
-# for (i in 1:length(cast$actor)){
-#   if(cast$actor[i] == "Bob Yves Van Hellenberg Hubar"){
-#       cast$FirstName[i] <- 'Bob Yves'
-#       cast$LastName[i] <- 'Van Hellenberg Hubar'
-#   }
-#   else if(cast$actor[i] == 'Daphne de Beistegui'){
-#       cast$FirstName[i] <- 'Daphne'
-#       cast$LastName[i]<- 'de Beistegui'
-#   }
-#   else if(cast$actor[i] == 'Sarah-Jane De Crespigny'){
-#       cast$FirstName[i] <- 'Sarah-Jane'
-#       cast$LastName[i]<- 'De Crespigny'
-#   }
-#   else{
-#     name <- strsplit(cast$actor[i], ' ')[[1]]
-#     cast$LastName[i] <- tail(name, 1)
-#     cast$FirstName[i] <- paste(head(name, length(name)-1), collapse = ' ')
-#   }
-# }
+#remove the row 'Rest of cast listed alphabetically:' and carriage and other hidden characters
+hpcast <- hpcast[hpcast$actor != 'Rest of cast listed alphabetically:',]
+hpcast <- sapply(hpcast, function(x){gsub("(\\\\r|\\\\n|\\n|\\\\t|\\s)+", " ", x)}) #remove blank and carriage return, tabs ...
+hpcast <- data.frame(hpcast,  stringsAsFactors = FALSE)
 
 # simpler code if ignoring three actors with multiple-letter last names
-firstname = sapply(strsplit(cast$actor, ' '), function(x) paste(x[1:length(x)-1], collapse = " "))
-lastname = sapply(strsplit(cast$actor, ' '), function(x) x[length(x)])
-cast$FirstName <- firstname
-cast$LastName <- lastname
-head(cast, 10)
+firstname = sapply(strsplit(hpcast$actor, ' '), function(x) paste(x[1:length(x)-1], collapse = " "))
+lastname = sapply(strsplit(hpcast$actor, ' '), function(x) x[length(x)])
+hpcast$FirstName <- firstname
+hpcast$LastName <- lastname
+hpcast <- hpcast[, c(3,4,2)] #rearrange the columns 
+knitr::kable(head(hpcast,10), format = "markdown")
 ```
 
-## 
+### Question 2
+
+
+```{r Scape the table containing the shooting stats of San Antonio Spurs from ESPN website}
+#scape the espn website for a table
+url <- "http://www.espn.com/nba/team/stats/_/name/sa/san-antonio-spurs"
+spursShootingStats <- url %>%
+	read_html() %>%
+  html_table(fill = TRUE)
+spursShootingStats <- spursShootingStats[[2]]
+
+#clean up the table 
+spursShootingStats <- spursShootingStats[2:16,]
+rownames(spursShootingStats) <- NULL
+colnames(spursShootingStats) = spursShootingStats[1, ] #set the first row as column names =
+spursShootingStats <- spursShootingStats[-1, ] #delete the first row
+knitr::kable(head(spursShootingStats), format = "markdown", row.names = FALSE)
+```
+
+```{r split the first column into player name and their position}
+name = sapply(strsplit(spursShootingStats$PLAYER, ','), function(x) x[1]) #split the name
+position = sapply(strsplit(spursShootingStats$PLAYER, ','), function(x) x[2]) #split the position
+spursShootingStats$Name <- name
+spursShootingStats$Position <- position
+spursShootingStats <- spursShootingStats[, c(16, 17, 2:15)] #rearrange the columns 
+knitr::kable(head(spursShootingStats), format = "markdown", row.names = FALSE)
+```
+
+```{r change datatypes }
+sapply(spursShootingStats, class) #before convertion
+spursShootingStats[, c(3:16 )] <- sapply(spursShootingStats[, c(3:16)], as.numeric)
+sapply(spursShootingStats, class) #after conversion
+```
+
+```{r fig.cap = "Fig. 1 Field goals percentage per game (FG%) of San Antonio Spurs (data from http://www.espn.com/nba/team/stats/_/name/sa/san-antonio-spurs)", fig.align ="center", out.width = "75%"}
+spursShootingStats%>%ggplot(aes(x = `Name`, y = `FG%`)) +
+  geom_bar(stat = 'identity', color = "black", fill ='red') +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+  xlab("Players") +
+  ylab("FG%") +
+  ggtitle("Field Goals Percentage Per Game Of San Antonio Spurs Players")+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+ 
+
 

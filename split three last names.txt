@@ -1,0 +1,22 @@
+#split first and last names of actors 
+# hpcast$FirstName = '' 
+# hpcast$LastName = ''
+# for (i in 1:length(hpcast$actor)){
+#   if(hpcast$actor[i] == "Bob Yves Van Hellenberg Hubar"){
+#       hpcast$FirstName[i] <- 'Bob Yves'
+#       hpcast$LastName[i] <- 'Van Hellenberg Hubar'
+#   }
+#   else if(hpcast$actor[i] == 'Daphne de Beistegui'){
+#       hpcast$FirstName[i] <- 'Daphne'
+#       hpcast$LastName[i]<- 'de Beistegui'
+#   }
+#   else if(hpcast$actor[i] == 'Sarah-Jane De Crespigny'){
+#       hpcast$FirstName[i] <- 'Sarah-Jane'
+#       hpcast$LastName[i]<- 'De Crespigny'
+#   }
+#   else{
+#     name <- strsplit(hpcast$actor[i], ' ')[[1]] #split the names
+#     hpcast$LastName[i] <- tail(name, 1)
+#     hpcast$FirstName[i] <- paste(head(name, length(name)-1), collapse = ' ')
+#   }
+# }
